@@ -13,13 +13,15 @@ func main() {
 	home, err := os.UserHomeDir()
 	Throw(err)
 
-	home = path.Join(home, ".config", "c1du")
+	home = path.Join(home, ".config", "6du")
 
 	err = os.MkdirAll(home, os.ModePerm)
 	Throw(err)
 
-	db, err := sql.Open("sqlite3", path.Join(home, "c1du.db"))
+	db, err := sql.Open("sqlite3", path.Join(home, "6du.db"))
 	Throw(err)
+	defer db.Close()
+
 
 	println(db)
 }
