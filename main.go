@@ -1,14 +1,16 @@
 package main
 
 import (
+	cryptoRand "crypto/rand"
 	"database/sql"
+	"encoding/base64"
 	"log"
 	"os"
 	"path"
 
-	"github.com/miekg/dns"
-
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/miekg/dns"
+	"github.com/prysmaticlabs/prysm/shared/bls"
 	. "github.com/urwork/throw"
 )
 
@@ -27,8 +29,19 @@ func main() {
 	defer db.Close()
 
 	println(db)
+	token := make([]byte, 32)
+
+	n, err := cryptoRand.Read(token)
+	println("cryptoRand.Read",n)
+	Throw(err)
+
+	secret,err := bls.SecretKeyFromBytes(token)
+	Throw(err)
+	println("secret", base64.RawURLEncoding.Encode(secret))
 
 	target := "6du-boot.6du.world"
+
+
 	server := "8.8.8.8"
 
 	c := dns.Client{}
@@ -45,7 +58,5 @@ func main() {
 		record := ans.(*dns.TXT)
 		log.Printf("%s", record.Txt)
 	}
-
-
 
 }
