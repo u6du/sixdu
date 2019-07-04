@@ -6,7 +6,7 @@ Decentralized Internet /  去中心化的互联网
 
 ---
 
-# 6du cli
+# 6du sixdu
 
 * [English Readme](#english-readme)
 * [中文说明](#中文说明)

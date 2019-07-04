@@ -20,12 +20,14 @@ func main() {
 		privb, _ := hex.DecodeString(priv)
 		pvk := ed25519.PrivateKey(privb)
 	*/
+
 	hasher, err := blake2b.New256(nil)
 
 	pub, priv, err := ed25519.GenerateKey(rand.Reader)
 	ex.Panic(err)
 
 	buffer := []byte("4:salt6:foobar3:seqi1e1:v12:Hello World!")
+
 	sigb := ed25519.Sign(priv, buffer)
 	println(len(sigb), " sign len")
 
@@ -33,4 +35,5 @@ func main() {
 	log.Printf("%x\n", priv.Public())
 	log.Printf("%x\n", hasher.Sum(pub))
 	log.Printf("%x\n", sigb)
+
 }

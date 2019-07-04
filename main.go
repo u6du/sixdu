@@ -1,67 +1,45 @@
 package main
 
 import (
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/rs/zerolog/log"
-	"github.com/u6du/ex"
-	"github.com/u6du/go-rfc1924/base85"
-	"golang.org/x/crypto/ed25519"
+	"net"
+	"time"
 
-	"sixdu/key"
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/u6du/ex"
 )
 
-/*
-func TestDns(dnsLi []string) {
+func serve() {
 
-	wait := sync.WaitGroup{}
-	wait.Add(len(dnsLi))
+	conn, err := net.ListenPacket("udp", ":49101")
+	ex.Panic(err)
+	defer conn.Close()
 
-	for _, dns := range dnsLi {
-		go func(dns string) {
-			n := 0
-			defer wait.Done()
-			for {
-				resolve := net.NewResolver(dns)
-				li, err := resolve.LookupTXT(context.Background(), "txt.6du.host")
-				if err != nil {
-					log.Print(dns, " ", err)
-					if n > 3 {
-						return
-					}
-				}
-				for _, i := range li {
-					fmt.Printf("%s %s\n", dns, i)
-					return
-				}
-				n += 1
-			}
-		}(dns)
+	for {
+		buf := make([]byte, 65535)
+		n, addr, err := conn.ReadFrom(buf)
+		if err != nil {
+			continue
+		}
+		println("recv", buf[:n])
+		println("addr", addr.String())
 	}
-
-	wait.Wait()
-
 }
-*/
+
+func client() {
+	conn, err := net.ListenUDP("udp", &net.UDPAddr{IP: net.IPv4zero, Port: 0})
+	ex.Panic(err)
+	conn.WriteTo([]byte("test"), &net.UDPAddr{IP: net.ParseIP("54.193.97.48"), Port: 49101})
+}
 
 func main() {
-	signStr := "7xW;Y8v!}fq_bBRv7AV`HY>E(YE(iMX_hs|Pm@VQ-l9nRO@IMX`;Ee)_rfDhpG3_KAUtn69a`$%Fw*e`"
-	sign, err := base85.DecodeString(signStr)
-	ex.Panic(err)
-	verify := ed25519.Verify(key.GodPublic, []byte("hello"), sign)
-	log.Info().Bool("verify", verify).Msg("")
-	//	TestDns(net.DnsDot)
+	go serve()
 
-	/*
-		for i := 1; i <= 10; i++ {
-			bootNode := db.BootNode("txt.6du.host")
-			if len(bootNode) == 0 {
-				panic(errors.New("boot node not found"))
-			} else {
-				log.Info().Msg(bootNode)
-			}
-		}
-	*/
-	return
+	n := 0
+	for {
+		println(">", n)
+		time.Sleep(10 * time.Second)
+		n += 1
+	}
 	/*
 		secret, err := bls.RandKey(rand.Reader)
 
@@ -104,43 +82,5 @@ func main() {
 		sign, err = bls.SignatureFromBytes(signBytes)
 		println("sign.Verify", sign.Verify(txt, public, SignTypeDns))
 
-			home, err := os.UserHomeDir()
-			ex.Panic(err)
-
-			home = path.Join(home, ".config", "6du")
-
-			err = os.MkdirAll(home, os.ModePerm)
-			ex.Panic(err)
-
-			db, err := sql.Open("sqlite3", path.Join(home, "6du.db"))
-			ex.Panic(err)
-			defer db.Close()
-
-			println(db)
-			//	token := make([]byte, 32)
-
-			//	n, err := cryptoRand.Read(token)
-			//	println("cryptoRand.Read", n)
-			//	ex.Panic(err)
-
-
-			target := "6du-boot.6du.world"
-
-			server := "8.8.8.8"
-
-			c := dns.Client{}
-			m := dns.Msg{}
-			m.SetQuestion(target+".", dns.TypeTXT)
-			r, t, err := c.Exchange(&m, server+":53")
-			ex.Panic(err)
-
-			log.Printf("Took %v", t)
-			if len(r.Answer) == 0 {
-				log.Fatal("No results")
-			}
-			for _, ans := range r.Answer {
-				record := ans.(*dns.TXT)
-				log.Printf("%s", record.Txt)
-			}
 	*/
 }
